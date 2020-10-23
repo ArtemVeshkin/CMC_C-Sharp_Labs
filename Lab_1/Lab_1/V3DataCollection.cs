@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace Lab_1
@@ -34,7 +35,7 @@ namespace Lab_1
 
             curNearest[0] = Grid[0].Coord;
 
-            foreach (DataItem data in Grid)
+            foreach (DataItem data in Grid.Skip(1))
             {
                 double curDist = Math.Pow(v.X - data.Coord.X, 2) + Math.Pow(v.Y - data.Coord.Y, 2);
 
