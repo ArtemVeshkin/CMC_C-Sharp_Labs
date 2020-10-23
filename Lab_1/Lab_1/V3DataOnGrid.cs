@@ -58,9 +58,9 @@ namespace Lab_1
 
             curNearest[0] = new Vector2(0, 0);
 
-            for (int i = 0; i < XGrid.NSteps; ++i)
+            for (int i = 1; i < XGrid.NSteps; ++i)
             {
-                for (int j = 0; j < YGrid.NSteps; ++j)
+                for (int j = 1; j < YGrid.NSteps; ++j)
                 {
                     double curDist = Math.Pow(v.X - i * XGrid.Step, 2) + Math.Pow(v.Y - j * YGrid.Step, 2);
 
