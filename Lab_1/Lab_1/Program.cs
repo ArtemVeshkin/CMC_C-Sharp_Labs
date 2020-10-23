@@ -20,7 +20,7 @@ namespace Lab_1
             Console.WriteLine(testMainCollection);
 
             // 3)
-            Vector2 v = new Vector2(3, 1.5f);
+            Vector2 v = new Vector2(0.5f, 0.5f);
             foreach (V3Data elem in testMainCollection)
             {
                 Vector2[] nearests = elem.Nearest(v);

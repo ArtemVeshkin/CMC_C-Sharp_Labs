@@ -7,9 +7,9 @@ namespace Lab_1
     class V3MainCollection : IEnumerable<V3Data>
     {
         // Параметры для добавления стандартных экземпляров в список
-        const int OnGridCount = 5;
-        const int CollectionCount = 5;
-        const float MaxPoint = 5;
+        const int OnGridCount = 2;
+        const int CollectionCount = 1;
+        const float MaxPoint = 2;
         const string DefaultSrting = "default";
         readonly DateTime DefaultDateTime = new DateTime();
         readonly Grid1D DefaultGrid = new Grid1D(1, (int)MaxPoint);
@@ -51,6 +51,8 @@ namespace Lab_1
                 Data.Add(data);
             }
             // V3DataCollection
+            Data.Add((V3DataCollection)(Data[0] as V3DataOnGrid));
+          
             for (int i = 0; i < CollectionCount; ++i)
             {
                 V3DataCollection data = new V3DataCollection(DefaultSrting, DefaultDateTime);
@@ -64,7 +66,7 @@ namespace Lab_1
             string result = "";
             foreach (V3Data elem in Data)
             {
-                result += elem.ToString() + '\n';
+                result += elem.ToLongString() + '\n';
             }
 
             return result;
