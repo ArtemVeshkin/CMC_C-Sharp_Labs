@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 
-namespace Lab_1
+namespace Lab_2
 {
     struct DataItem
     {
@@ -17,6 +16,9 @@ namespace Lab_1
 
         public override string ToString() =>
             $"Coordinates: ({Coord.X}, {Coord.Y}), Value: {Value}";
+
+        public string ToString(string format) =>
+            $"Coordinates: ({Coord.X.ToString(format)}, {Coord.Y.ToString(format)}), Value: {Value.ToString(format)}";
     }
 
     struct Grid1D
@@ -32,6 +34,9 @@ namespace Lab_1
 
         public override string ToString() =>
             $"Step: {Step}, NSteps: {NSteps}";
+
+        public string ToString(string format) =>
+            $"Step: {Step.ToString(format)}, NSteps: {NSteps}";
     }
 
     abstract class V3Data
@@ -48,6 +53,8 @@ namespace Lab_1
         public abstract Vector2[] Nearest(Vector2 v);
 
         public abstract string ToLongString();
+
+        public abstract string ToLongString(string format);
 
         public override string ToString() =>
             $"Info: {Info}, Time: {Time.ToShortTimeString()}";

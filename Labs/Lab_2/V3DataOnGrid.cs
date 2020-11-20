@@ -1,10 +1,82 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
+using System.IO;
 
-namespace Lab_1
+namespace Lab_2
 {
-    class V3DataOnGrid : V3Data
+    class V3DataOnGridEnumerator : IEnumerator<DataItem>
+    {
+        private DataItem[,] Value;
+        private int Pos1, Pos2;
+
+        public V3DataOnGridEnumerator(Grid1D xgrid, Grid1D ygrid, double[,] value)
+        {
+            Pos1 =  0;
+            Pos2 = -1;
+
+            Value = new DataItem[xgrid.NSteps, ygrid.NSteps];
+            for (int i = 0; i < xgrid.NSteps; ++i)
+            {
+                for (int j = 0; j < ygrid.NSteps; ++j)
+                {
+                    Value[i, j] = new DataItem(new Vector2(i * xgrid.Step, j * ygrid.Step), value[i, j]);
+                }
+            }
+        }
+
+        public DataItem Current
+        {
+            get
+            {
+                if (0 >= Pos1 && Pos1 <= Value.GetLength(0) && 0 >= Pos2 && Pos2 <= Value.GetLength(1))
+                {
+                    return Value[Pos1, Pos2];
+                }
+
+                throw new InvalidOperationException();
+            }
+        }
+
+        public bool MoveNext()
+        {
+            if (Pos2 < Value.GetLength(1) - 1)
+            {
+                ++Pos2;
+                return true;
+            }
+            else if (Pos1 < Value.GetLength(0) - 1 && Pos2 == Value.GetLength(1) - 1)
+            {
+                ++Pos1;
+                Pos2 = 0;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void Reset()
+        {
+            Pos1 =  0;
+            Pos2 = -1;
+        }
+
+        object IEnumerator.Current
+        {
+            get
+            {
+                return Current;
+            }
+        }
+
+        void IDisposable.Dispose() { }
+    }
+
+
+    class V3DataOnGrid : V3Data, IEnumerable<DataItem>
     {
         public Grid1D XGrid { get; set; }
         public Grid1D YGrid { get; set; }
@@ -17,6 +89,73 @@ namespace Lab_1
             YGrid = ygrid;
 
             Value = new double[xgrid.NSteps, ygrid.NSteps];
+        }
+
+        public V3DataOnGrid(string filename) : base("", new DateTime())
+        {
+            // .: FORMAT :.
+            // {string   Info}\n
+            // {DateTime Time}\n
+            // {float StepX} {int NStepsX}\n
+            // {float StepY} {int NStepsY}\n
+            // {double Value[0, 0]}\n
+            // {double Value[0, 1]}\n
+            // ...
+            // {double Value[0, NStepsY]}\n
+            // {double Value[1, 0]}\n
+            // ...
+            // {double Value[NStepsX, NStepsY]}\n
+
+            FileStream fs = null;
+            try
+            {
+                fs = new FileStream(filename, FileMode.Open);
+                StreamReader sr = new StreamReader(fs);
+                // base class
+                Info = sr.ReadLine();
+                Time = Convert.ToDateTime(sr.ReadLine());
+
+                float Step;
+                int   NSteps;
+                // XGrid
+                Step   = (float) Convert.ToDouble(sr.ReadLine());
+                NSteps = Convert.ToInt32(sr.ReadLine());
+                XGrid  = new Grid1D(Step, NSteps);
+                // YGrid
+                Step   = (float)Convert.ToDouble(sr.ReadLine());
+                NSteps = Convert.ToInt32(sr.ReadLine());
+                XGrid  = new Grid1D(Step, NSteps);
+
+                // Value[,]
+                Value = new double[XGrid.NSteps, YGrid.NSteps];
+                for (int i = 0; i < XGrid.NSteps; ++i)
+                {
+                    for (int j = 0; j < YGrid.NSteps; ++j)
+                    {
+                        Value[i, j] = Convert.ToDouble(sr.ReadLine());
+                    }
+                }
+
+                sr.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (fs != null) { fs.Close(); }
+            }
+        }
+
+        public IEnumerator<DataItem> GetEnumerator()
+        {
+            return new V3DataOnGridEnumerator(XGrid, YGrid, Value);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         public void InitRandom(double minValue, double maxValue)
@@ -104,6 +243,22 @@ namespace Lab_1
                 for (int j = 0; j < YGrid.NSteps; ++j)
                 {
                     res += $"({i * XGrid.Step}, {j * YGrid.Step}) : {Value[i, j]}\n";
+                }
+            }
+
+            return res;
+        }
+
+        public override string ToLongString(string format)
+        {
+            string res = this.ToString() + "\n";
+
+            for (int i = 0; i < XGrid.NSteps; ++i)
+            {
+                for (int j = 0; j < YGrid.NSteps; ++j)
+                {
+                    res += $"({(i * XGrid.Step).ToString(format)}, {(j * YGrid.Step).ToString(format)}) " +
+                        $": {Value[i, j].ToString(format)}\n";
                 }
             }
 

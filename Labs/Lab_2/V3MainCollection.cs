@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 
-namespace Lab_1
+namespace Lab_2
 {
     class V3MainCollection : IEnumerable<V3Data>
     {
@@ -67,6 +67,17 @@ namespace Lab_1
             foreach (V3Data elem in Data)
             {
                 result += elem.ToLongString() + '\n';
+            }
+
+            return result;
+        }
+        
+        public string ToLongString(string format)
+        {
+            string result = "";
+            foreach (V3Data elem in Data)
+            {
+                result += elem.ToLongString(format) + '\n';
             }
 
             return result;

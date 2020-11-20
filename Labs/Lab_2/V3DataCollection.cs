@@ -1,17 +1,28 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace Lab_1
+namespace Lab_2
 {
-    class V3DataCollection : V3Data
+    class V3DataCollection : V3Data, IEnumerable<DataItem>
     {
         public List<DataItem> Grid { get; set; }
 
         public V3DataCollection(string info, DateTime time) : base(info, time) 
         {
             Grid = new List<DataItem>();
+        }
+
+        public IEnumerator<DataItem> GetEnumerator()
+        {
+            return Grid.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         public void InitRandom(int nItems, float xmax, float ymax, double minValue, double maxValue)
@@ -71,6 +82,18 @@ namespace Lab_1
             foreach (DataItem elem in Grid)
             {
                 res += $"({elem.Coord.X}, {elem.Coord.Y}) : {elem.Value}\n";
+            }
+
+            return res;
+        }
+
+        public override string ToLongString(string format)
+        {
+            string res = this.ToString() + "\n";
+
+            foreach (DataItem elem in Grid)
+            {
+                res += $"({elem.Coord.X.ToString(format)}, {elem.Coord.Y.ToString(format)}) : {elem.Value.ToString(format)}\n";
             }
 
             return res;
