@@ -96,8 +96,10 @@ namespace Lab_2
             // .: FORMAT :.
             // {string   Info}\n
             // {DateTime Time}\n
-            // {float StepX} {int NStepsX}\n
-            // {float StepY} {int NStepsY}\n
+            // {float StepX}\n
+            // {int NStepsX}\n
+            // {float StepY}\n
+            // {int NStepsY}\n
             // {double Value[0, 0]}\n
             // {double Value[0, 1]}\n
             // ...
