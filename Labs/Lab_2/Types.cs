@@ -26,7 +26,7 @@ namespace Lab_2
         public float Step { get; set; }
         public int NSteps { get; set; }
 
-        public Grid1D(float step, int nsteps)
+        public Grid1D(float step = 0, int nsteps = 0)
         {
             Step   = step;
             NSteps = nsteps;

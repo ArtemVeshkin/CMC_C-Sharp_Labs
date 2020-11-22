@@ -126,7 +126,7 @@ namespace Lab_2
                 // YGrid
                 Step   = (float)Convert.ToDouble(sr.ReadLine());
                 NSteps = Convert.ToInt32(sr.ReadLine());
-                XGrid  = new Grid1D(Step, NSteps);
+                YGrid  = new Grid1D(Step, NSteps);
 
                 // Value[,]
                 Value = new double[XGrid.NSteps, YGrid.NSteps];
@@ -260,7 +260,7 @@ namespace Lab_2
                 for (int j = 0; j < YGrid.NSteps; ++j)
                 {
                     res += $"({(i * XGrid.Step).ToString(format)}, {(j * YGrid.Step).ToString(format)}) " +
-                        $": {Value[i, j].ToString(format)}\n";
+                           $": {Value[i, j].ToString(format)}\n";
                 }
             }
 
