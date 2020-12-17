@@ -3,79 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 using System.IO;
+using System.Globalization;
 
 namespace Lab_2
 {
-    class V3DataOnGridEnumerator : IEnumerator<DataItem>
-    {
-        private DataItem[,] Value;
-        private int Pos1, Pos2;
-
-        public V3DataOnGridEnumerator(Grid1D xgrid, Grid1D ygrid, double[,] value)
-        {
-            Pos1 =  0;
-            Pos2 = -1;
-
-            Value = new DataItem[xgrid.NSteps, ygrid.NSteps];
-            for (int i = 0; i < xgrid.NSteps; ++i)
-            {
-                for (int j = 0; j < ygrid.NSteps; ++j)
-                {
-                    Value[i, j] = new DataItem(new Vector2(i * xgrid.Step, j * ygrid.Step), value[i, j]);
-                }
-            }
-        }
-
-        public DataItem Current
-        {
-            get
-            {
-                if (0 >= Pos1 && Pos1 <= Value.GetLength(0) && 0 >= Pos2 && Pos2 <= Value.GetLength(1))
-                {
-                    return Value[Pos1, Pos2];
-                }
-
-                throw new InvalidOperationException();
-            }
-        }
-
-        public bool MoveNext()
-        {
-            if (Pos2 < Value.GetLength(1) - 1)
-            {
-                ++Pos2;
-                return true;
-            }
-            else if (Pos1 < Value.GetLength(0) - 1 && Pos2 == Value.GetLength(1) - 1)
-            {
-                ++Pos1;
-                Pos2 = 0;
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public void Reset()
-        {
-            Pos1 =  0;
-            Pos2 = -1;
-        }
-
-        object IEnumerator.Current
-        {
-            get
-            {
-                return Current;
-            }
-        }
-
-        void IDisposable.Dispose() { }
-    }
-
-
     class V3DataOnGrid : V3Data, IEnumerable<DataItem>
     {
         public Grid1D XGrid { get; set; }
@@ -109,23 +40,25 @@ namespace Lab_2
             // {double Value[NStepsX, NStepsY]}\n
 
             FileStream fs = null;
+            CultureInfo cultureInfo = new CultureInfo("ru-RU");
+            cultureInfo.NumberFormat.NumberDecimalSeparator = ",";
             try
             {
                 fs = new FileStream(filename, FileMode.Open);
                 StreamReader sr = new StreamReader(fs);
                 // base class
                 Info = sr.ReadLine();
-                Time = Convert.ToDateTime(sr.ReadLine());
+                Time = Convert.ToDateTime(sr.ReadLine(), cultureInfo);
 
                 float Step;
                 int   NSteps;
                 // XGrid
-                Step   = (float) Convert.ToDouble(sr.ReadLine());
-                NSteps = Convert.ToInt32(sr.ReadLine());
+                Step   = (float) Convert.ToDouble(sr.ReadLine(), cultureInfo);
+                NSteps = Convert.ToInt32(sr.ReadLine(), cultureInfo);
                 XGrid  = new Grid1D(Step, NSteps);
                 // YGrid
-                Step   = (float)Convert.ToDouble(sr.ReadLine());
-                NSteps = Convert.ToInt32(sr.ReadLine());
+                Step   = (float)Convert.ToDouble(sr.ReadLine(), cultureInfo);
+                NSteps = Convert.ToInt32(sr.ReadLine(), cultureInfo);
                 YGrid  = new Grid1D(Step, NSteps);
 
                 // Value[,]
@@ -134,7 +67,7 @@ namespace Lab_2
                 {
                     for (int j = 0; j < YGrid.NSteps; ++j)
                     {
-                        Value[i, j] = Convert.ToDouble(sr.ReadLine());
+                        Value[i, j] = Convert.ToDouble(sr.ReadLine(), cultureInfo);
                     }
                 }
 
@@ -152,7 +85,13 @@ namespace Lab_2
 
         public IEnumerator<DataItem> GetEnumerator()
         {
-            return new V3DataOnGridEnumerator(XGrid, YGrid, Value);
+            for (int i = 0; i < XGrid.NSteps; ++i)
+            {
+                for (int j = 0; j < YGrid.NSteps; ++j)
+                {
+                    yield return new DataItem(new Vector2(XGrid.Step * i, YGrid.Step * j), Value[i, j]);
+                }
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
