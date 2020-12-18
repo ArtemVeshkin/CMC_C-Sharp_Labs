@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using System.ComponentModel;
 
 namespace Lab_3
 {
@@ -39,10 +40,37 @@ namespace Lab_3
             $"Step: {Step.ToString(format)}, NSteps: {NSteps}";
     }
 
-    abstract class V3Data
+    abstract class V3Data : INotifyPropertyChanged
     {
-        public string Info { get; set; }
-        public DateTime Time { get; set; }
+        private string info;
+        private DateTime time;
+
+        public string Info
+        {
+            get => info;
+            set
+            {
+                info = value;
+                OnPropertyChanged("Info");
+            }
+        }
+
+        public DateTime Time
+        {
+            get => time;
+            set
+            {
+                time = value;
+                OnPropertyChanged("Time");
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public V3Data(string info, DateTime time)
         {

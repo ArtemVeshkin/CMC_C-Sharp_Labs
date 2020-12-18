@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Numerics;
 using System.Linq;
+using System.ComponentModel;
 
 namespace Lab_3
 {
+    enum ChangeInfo { ItemChanged, Add, Remove, Replace }
+
+    delegate void DataChangedEventHandler(object source, DataChangedEventArgs args);
+
     class V3MainCollection : IEnumerable<V3Data>
     {
         // Параметры для добавления стандартных экземпляров в список
@@ -23,6 +28,13 @@ namespace Lab_3
 
         public int Count { get => Data.Count; }
 
+        public event DataChangedEventHandler DataChanged;
+
+        private void PropertyChangedHandler(object source, PropertyChangedEventArgs args)
+        {
+            DataChanged?.Invoke(source, new DataChangedEventArgs(ChangeInfo.ItemChanged, $"Changed: {args.PropertyName}"));
+        }
+
         public IEnumerator<V3Data> GetEnumerator()
         {
             return Data.GetEnumerator();
@@ -33,14 +45,54 @@ namespace Lab_3
             return GetEnumerator();
         }
 
+        public V3Data this[int index]
+        { 
+            get
+            {
+                if (index < 0 || index > Data.Count)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+                return Data[index];
+            }
+            set
+            {
+                int before = Data.Count();
+                var prev = Data[index];
+                Data[index] = value;
+                int after = Data.Count();
+
+                if (prev != value)
+                {
+                    DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Replace, $"Items in List: {before} -> {after}"));
+                }
+            }
+        }
+
         public void Add(V3Data item)
         {
+            int before = Data.Count();
             Data.Add(item);
+            int after = Data.Count();
+            DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Add, $"Items in List: {before} -> {after}"));
+            item.PropertyChanged += PropertyChangedHandler;
         }
 
         public bool Remove(string id, DateTime date)
         {
-            return Data.RemoveAll((V3Data elem) => elem.Info == id && elem.Time == date) > 0;
+            int before = Data.Count();
+
+            foreach (var elem in Data.FindAll((V3Data elem) => elem.Info == id && elem.Time == date))
+            {
+                elem.PropertyChanged -= PropertyChangedHandler;
+            }
+
+            bool deletedSomething = Data.RemoveAll((V3Data elem) => elem.Info == id && elem.Time == date) > 0;
+            int after = Data.Count();
+
+            DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Remove, $"Items in List: {before} -> {after}"));
+
+            return deletedSomething;
         }
 
         // Минимальное расстояние между v и точками из Data, в которых измерено поле
