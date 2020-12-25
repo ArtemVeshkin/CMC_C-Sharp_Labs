@@ -65,6 +65,7 @@ namespace Lab_3
                 if (prev != value)
                 {
                     DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Replace, $"Items in List: {before} -> {after}"));
+                    value.PropertyChanged += PropertyChangedHandler;
                 }
             }
         }
