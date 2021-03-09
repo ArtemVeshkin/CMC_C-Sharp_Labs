@@ -15,6 +15,9 @@ namespace Lab_3
             task1[0] = task1[1];
             task1.Remove("Elem2", new DateTime());
             task1[0].Info = "Changed Info";
+            task1[0] = new V3DataCollection("Elem4", new DateTime());
+            task1[0].Info = "aaa";
+            task1[0].Info = "bbb";
         }
 
         static void DataChangedHandler(object source, DataChangedEventArgs args)
