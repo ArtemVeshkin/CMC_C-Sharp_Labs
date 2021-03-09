@@ -111,7 +111,6 @@ namespace ClassLibrary
                 BinaryFormatter binF = new BinaryFormatter();
                 binF.Serialize(filestream, Data);
                 ChangedAfterSaving = false;
-
             }
             catch (Exception ex)
             {
