@@ -35,7 +35,7 @@ namespace ClassLibrary
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public bool ChangedAfterSaving { get; set; }
+        public bool ChangedAfterSaving { get; set; } = true;
 
         private void PropertyChangedHandler(object source, PropertyChangedEventArgs args)
         {
@@ -238,7 +238,7 @@ namespace ClassLibrary
             return result;
         }
 
-        private V3DataCollection DataCollectionCast(V3Data elem)
+        public static V3DataCollection DataCollectionCast(V3Data elem)
         {
             return elem is V3DataOnGrid ? (V3DataCollection)(elem as V3DataOnGrid) : elem as V3DataCollection;
         }
