@@ -14,7 +14,7 @@ namespace ClassLibrary
 
     public delegate void DataChangedEventHandler(object source, DataChangedEventArgs args);
 
-    public class V3MainCollection : IEnumerable<V3Data>, INotifyCollectionChanged
+    public class V3MainCollection : IEnumerable<V3Data>, INotifyCollectionChanged, INotifyPropertyChanged
     {
         // Параметры для добавления стандартных экземпляров в список
         const int         OnGridCount = 2;
@@ -35,11 +35,59 @@ namespace ClassLibrary
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public bool ChangedAfterSaving { get; set; } = true;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private string farestPointDistance = "0";
+
+        public string FarestPointDistance { get
+            {
+                return farestPointDistance;
+            }
+            set
+            {
+                farestPointDistance = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("FarestPointDistance"));
+            }
+        }
+
+        private bool changedAfterSaving = false;
+
+        public bool ChangedAfterSaving
+        {
+            get
+            {
+                return changedAfterSaving;
+            }
+            set
+            {
+                changedAfterSaving = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("ChangedAfterSaving"));
+            }
+        }
+
+        public V3MainCollection()
+        {
+            CollectionChanged += CollectionChangedHandler;
+        }
 
         private void PropertyChangedHandler(object source, PropertyChangedEventArgs args)
         {
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             DataChanged?.Invoke(source, new DataChangedEventArgs(ChangeInfo.ItemChanged, $"Changed: {args.PropertyName}"));
+        }
+
+        private void CollectionChangedHandler(object source, NotifyCollectionChangedEventArgs args)
+        {
+            ChangedAfterSaving = true;
+
+            var queryToDataCollection = Data.Select(DataCollectionCast);
+            var queryToDataItem = from data in queryToDataCollection
+                                  from vector in data
+                                  select vector;
+
+            var result = queryToDataItem.Select(x => Vector2.Distance(x.Coord, new Vector2(0, 0)));
+
+            FarestPointDistance = result.Count() > 0 ? $"{result.Max()}" : "0";
         }
 
         public IEnumerator<V3Data> GetEnumerator()
@@ -71,6 +119,7 @@ namespace ClassLibrary
 
                 if (prev != value)
                 {
+                    CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
                     DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Replace, $"Items in List: {before} -> {after}"));
                 }
             }
@@ -81,6 +130,8 @@ namespace ClassLibrary
             int before = Data.Count();
             Data.Add(item);
             int after = Data.Count();
+
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Add, $"Items in List: {before} -> {after}"));
             item.PropertyChanged += PropertyChangedHandler;
         }
@@ -97,6 +148,7 @@ namespace ClassLibrary
             bool deletedSomething = Data.RemoveAll((V3Data elem) => elem.Info == id && elem.Time == date) > 0;
             int after = Data.Count();
 
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Remove, $"Items in List: {before} -> {after}"));
 
             return deletedSomething;
@@ -199,21 +251,19 @@ namespace ClassLibrary
             {
                 V3DataOnGrid data = new V3DataOnGrid(DefaultString, DefaultDateTime, DefaultGrid, DefaultGrid);
                 data.InitRandom(minValue, maxValue);
-                Data.Add(data);
+                Add(data);
             }
             // V3DataCollection
-            Data.Add((V3DataCollection)(Data[0] as V3DataOnGrid));
-
             for (int i = 0; i < CollectionCount; ++i)
             {
                 V3DataCollection data = new V3DataCollection(DefaultString, DefaultDateTime);
                 data.InitRandom(nDefault, MaxPoint, MaxPoint, minValue, maxValue);
-                Data.Add(data);
+                Add(data);
             }
 
             // Для тестирования запросов LINQ
-            Data.Add(new V3DataCollection(DefaultString, DefaultDateTime));
-            Data.Add(new V3DataOnGrid("", new DateTime(), new Grid1D(0, 0), new Grid1D(0, 0)));
+            Add(new V3DataCollection(DefaultString, DefaultDateTime));
+            Add(new V3DataOnGrid("", new DateTime(), new Grid1D(0, 0), new Grid1D(0, 0)));
         }
 
         public override string ToString()

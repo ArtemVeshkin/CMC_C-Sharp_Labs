@@ -6,73 +6,116 @@
         xmlns:local="clr-namespace:Lab_1"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="Veshkin Artem 301" Height="800" Width="1000" Closed="Window_Closed">
-    <Grid Name="MainGrid" Background="#fff0f0f0">
-        <Menu Grid.ColumnSpan="2">
-            <MenuItem Header="File">
-                <MenuItem Header="New" Click="MenuItem_New_Click"/>
-                <MenuItem Header="Open" Click="MenuItem_Open_Click"/>
-                <MenuItem Header="Save" Click="MenuItem_Save_Click"/>
-            </MenuItem>
-            <MenuItem Header="Edit">
-                <MenuItem Header="Add Defaults" Click="MenuItem_Add_Defaults_Click"/>
-                <MenuItem Header="Add Defaults V3DataCollection" Click="MenuItem_Add_Defaults_V3DataCollection_Click"/>
-                <MenuItem Header="Add Defaults V3DataOnGrid" Click="MenuItem_Add_Defaults_V3DataOnGrid_Click"/>
-                <MenuItem Header="Add Element from File" Click="MenuItem_Add_Element_from_File_Click"/>
-                <MenuItem Header="Remove"/>
-            </MenuItem>
-        </Menu>
+        Title="Veshkin Artem 301" Height="850" Width="1000" Closed="Window_Closed">
+    <Window.Resources>
+        <CollectionViewSource Source="{Binding}" x:Key="ListBox_DataCollection_View" Filter="Filter_DataCollection"/>
+        <CollectionViewSource Source="{Binding}" x:Key="ListBox_DataOnGrid_View" Filter="Filter_DataOnGrid"/>
 
-        <StackPanel Grid.Row="1" Grid.Column="0">
-            <Border Background="White" Margin="20 30 20 0" VerticalAlignment="Top" Padding="20" CornerRadius="5">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
-                </Border.Effect>
-                <ListBox Name="listBox_Main">
-                    <ListBoxItem>1</ListBoxItem>
-                    <ListBoxItem>2</ListBoxItem>
-                    <ListBoxItem>3</ListBoxItem>
-                </ListBox>
-            </Border>
-            <Border Background="White" Margin="20 20 20 0" VerticalAlignment="Top" Padding="20" CornerRadius="5">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
-                </Border.Effect>
-                <ListBox Name="listBox_DataCollection">
-                    <ListBoxItem>4</ListBoxItem>
-                    <ListBoxItem>5</ListBoxItem>
-                    <ListBoxItem>6</ListBoxItem>
-                </ListBox>
-            </Border>
-            <Border Background="White" Margin="20 20 20 0" VerticalAlignment="Top" Padding="20" CornerRadius="5">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
-                </Border.Effect>
-                <ListBox Name="listBox_DataOnGrid">
-                    <ListBoxItem>7</ListBoxItem>
-                    <ListBoxItem>8</ListBoxItem>
-                    <ListBoxItem>9</ListBoxItem>
-                </ListBox>
-            </Border>
-        </StackPanel>
-        
-        <Border Grid.Row="1" Grid.Column="1"
-                Background="White" Margin="20 30 20 20" VerticalAlignment="Top" Padding="20" CornerRadius="5">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
-            </Border.Effect>
-            <StackPanel Name="V3DataElements">
-                
+        <local:CoordConverter x:Key="coordConverter"/>
+        <local:ValueConverter x:Key="valueConverter"/>
+        <local:XGridConverter x:Key="xGridConverter"/>
+        <local:YGridConverter x:Key="yGridConverter"/>
+
+        <DataTemplate x:Key="DataItem_DataTemplate">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Path=Coord, Converter={StaticResource coordConverter}}" TextWrapping="Wrap" Style="{StaticResource MaterialDesignBody1TextBlock}" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding Path=Value, Converter={StaticResource valueConverter}}" TextWrapping="Wrap" Style="{StaticResource MaterialDesignBody1TextBlock}" HorizontalAlignment="Center" Grid.Column="1"/>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+    <ScrollViewer>
+        <Grid Name="MainGrid" Background="#fff0f0f0">
+            <Menu Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+                <MenuItem Header="File">
+                    <MenuItem Header="New" Click="MenuItem_New_Click"/>
+                    <MenuItem Header="Open" Click="MenuItem_Open_Click"/>
+                    <MenuItem Header="Save" Click="MenuItem_Save_Click"/>
+                </MenuItem>
+                <MenuItem Header="Edit">
+                    <MenuItem Header="Add Defaults" Click="MenuItem_Add_Defaults_Click"/>
+                    <MenuItem Header="Add Defaults V3DataCollection" Click="MenuItem_Add_Defaults_V3DataCollection_Click"/>
+                    <MenuItem Header="Add Defaults V3DataOnGrid" Click="MenuItem_Add_Defaults_V3DataOnGrid_Click"/>
+                    <MenuItem Header="Add Element from File" Click="MenuItem_Add_Element_from_File_Click"/>
+                    <MenuItem Header="Remove" Click="MenuItem_Remove_Click"/>
+                </MenuItem>
+                <TextBlock Name="SavedTextBlock" Text="Все изменения сохранены" Foreground="Green"/>
+            </Menu>
+
+            <StackPanel Grid.Row="1" Grid.Column="0">
+                <Border Background="White" Margin="20 30 20 0" VerticalAlignment="Top" Padding="20" CornerRadius="5">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}">Все элементы V3MainCollection</TextBlock>
+                        <ListBox Name="listBox_Main" ItemsSource="{Binding}" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="White" Margin="20 20 20 0" VerticalAlignment="Top" Padding="20" CornerRadius="5">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}">Элементы V3MainCollection с типом V3DataCollection</TextBlock>
+                        <ListBox Name="listBox_DataCollection" ItemsSource="{Binding Source={StaticResource ListBox_DataCollection_View}}" IsSynchronizedWithCurrentItem="True" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="White" Margin="20 20 20 30" VerticalAlignment="Top" Padding="20" CornerRadius="5">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource MaterialDesignBody1TextBlock}">Элементы V3MainCollection с типом V3DataOnGrid</TextBlock>
+                        <ListBox Name="listBox_DataOnGrid" ItemsSource="{Binding Source={StaticResource ListBox_DataOnGrid_View}}" IsSynchronizedWithCurrentItem="True" ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                    </StackPanel>
+                    </Border>
             </StackPanel>
-        </Border>
 
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="1*"/>
-        </Grid.RowDefinitions>
-    </Grid>
+            <StackPanel  Grid.Row="1" Grid.Column="1">
+                <Border Background="White" Margin="20 30 20 0" VerticalAlignment="Top" Padding="20" CornerRadius="5">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" Style="{StaticResource MaterialDesignBody1TextBlock}">Максимальное расстояние от точек, в которых измеренно поле до начала координат среду всех результатов измерений в коллекции V3MainCollection:</TextBlock>
+                        <TextBlock TextWrapping="Wrap" Style="{StaticResource MaterialDesignBody1TextBlock}" Text="{Binding Path=FarestPointDistance, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="White" Margin="20 30 20 0" VerticalAlignment="Top" Padding="20" CornerRadius="5">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" Style="{StaticResource MaterialDesignBody1TextBlock}">Содержимое V3DataCollection:</TextBlock>
+                        <ListBox Name="listBox_details" ItemsSource="{Binding Source={StaticResource ListBox_DataCollection_View}, Path=Grid}" ItemTemplate="{StaticResource DataItem_DataTemplate}" HorizontalContentAlignment="Stretch"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="White" Margin="20 30 20 30" VerticalAlignment="Top" Padding="20" CornerRadius="5">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="30" Color="LightGray" ShadowDepth="0"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" Style="{StaticResource MaterialDesignBody1TextBlock}">Информация об элементе V3DataOnGrid:</TextBlock>
+                        <TextBlock Text="{Binding Source={StaticResource ListBox_DataOnGrid_View}, Path=XGrid, Converter={StaticResource xGridConverter}}" Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+                        <TextBlock Text="{Binding Source={StaticResource ListBox_DataOnGrid_View}, Path=YGrid, Converter={StaticResource yGridConverter}}" Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+        </Grid>
+    </ScrollViewer>
+    
 </Window>
