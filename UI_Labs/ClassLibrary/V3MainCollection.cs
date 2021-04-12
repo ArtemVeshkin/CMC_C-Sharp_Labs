@@ -154,6 +154,14 @@ namespace ClassLibrary
             return deletedSomething;
         }
 
+        public void RemoveAt(int index)
+        {
+            Data.RemoveAt(index);
+
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            DataChanged?.Invoke(this, new DataChangedEventArgs(ChangeInfo.Remove, $"Items in List: {Data.Count + 1} -> {Data.Count}"));
+        }
+
         public void Save(string filename)
         {
             FileStream filestream = null;
@@ -185,10 +193,12 @@ namespace ClassLibrary
                 filestream = File.OpenRead(filename);
                 BinaryFormatter binF = new BinaryFormatter();
                 Data = binF.Deserialize(filestream) as List<V3Data>;
+
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{this.GetType()}.Load() raised exception:\n{ex.Message}");
+                throw ex;
             }
             finally
             {

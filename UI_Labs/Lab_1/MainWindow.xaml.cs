@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ClassLibrary;
+﻿using ClassLibrary;
 using Microsoft.Win32;
+using System;
 using System.ComponentModel;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Media;
 
 namespace Lab_1
 {
@@ -70,22 +60,31 @@ namespace Lab_1
 
         private void MenuItem_Open_Click(object sender, RoutedEventArgs e)
         {
-            if (Check_Changes())
+            try
             {
-                Serialize();
+                if (Check_Changes())
+                {
+                    Serialize();
+                }
+
+                OpenFileDialog dlg = new OpenFileDialog
+                {
+                    Filter = "Serialization data|*.dat|All|*.*",
+                    FilterIndex = 2
+                };
+
+                if (dlg.ShowDialog() == true)
+                {
+                    Collection = new V3MainCollection();
+                    Collection.Load(dlg.FileName);
+                    InitDataContext();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{this.GetType()}.MenuItem_Open_Click() raised exception:\n{ex.Message}");
             }
 
-            OpenFileDialog dlg = new OpenFileDialog {
-                Filter = "Serialization data|*.dat|All|*.*",
-                FilterIndex = 2
-            };
-
-            if (dlg.ShowDialog() == true)
-            {
-                Collection = new V3MainCollection();
-                Collection.Load(dlg.FileName);
-                InitDataContext();
-            }
         }
 
         private void MenuItem_Save_Click(object sender, RoutedEventArgs e)
@@ -103,7 +102,8 @@ namespace Lab_1
 
         private void Serialize()
         {
-            SaveFileDialog dlg = new SaveFileDialog {
+            SaveFileDialog dlg = new SaveFileDialog
+            {
                 Filter = "Serialization data|*.dat|All|*.*",
                 FilterIndex = 2
             };
@@ -164,7 +164,7 @@ namespace Lab_1
                     MessageBox.Show("Файл не выбран");
                 }
             }
-            catch (Exception) 
+            catch (Exception)
             {
                 MessageBox.Show("Ошибка при чтении из файла");
             }
@@ -172,9 +172,9 @@ namespace Lab_1
 
         private void MenuItem_Remove_Click(object sender, RoutedEventArgs e)
         {
-            if (listBox_Main.SelectedItem is V3Data selected)
+            if (listBox_Main.SelectedIndex >= 0)
             {
-                Collection.Remove(selected.Info, selected.Time);
+                Collection.RemoveAt(listBox_Main.SelectedIndex);
             }
         }
 
