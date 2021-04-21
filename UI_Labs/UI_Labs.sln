@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary", "ClassLibrary\ClassLibrary.csproj", "{7D6541C6-64EE-4F41-B271-AAD4670D2F69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab_1", "Lab_1\Lab_1.csproj", "{6C4FEADD-0F7E-48E8-B47C-09F0C40D2577}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab", "Lab_1\Lab.csproj", "{6C4FEADD-0F7E-48E8-B47C-09F0C40D2577}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7D6541C6-64EE-4F41-B271-AAD4670D2F69} = {7D6541C6-64EE-4F41-B271-AAD4670D2F69}
 	EndProjectSection

@@ -3,7 +3,7 @@ using System.Windows.Data;
 using System;
 using ClassLibrary;
 
-namespace Lab_1
+namespace Lab
 {
     [ValueConversion(typeof(Vector2), typeof(string))]
     public class CoordConverter : IValueConverter
@@ -62,6 +62,20 @@ namespace Lab_1
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return value;
+        }
+    }
+
+    [ValueConversion(typeof(string), typeof(float))]
+    public class FloatConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value.ToString().EndsWith(".") ? "." : value;
         }
     }
 }

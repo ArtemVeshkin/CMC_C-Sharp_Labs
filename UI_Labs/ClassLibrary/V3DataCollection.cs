@@ -3,17 +3,26 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Collections.Specialized;
 
 namespace ClassLibrary
 {
     [Serializable]
-    public class V3DataCollection : V3Data, IEnumerable<DataItem>
+    public class V3DataCollection : V3Data, IEnumerable<DataItem>, INotifyCollectionChanged 
     {
         public List<DataItem> Grid { get; set; }
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         public V3DataCollection(string info, DateTime time) : base(info, time) 
         {
             Grid = new List<DataItem>();
+        }
+
+        public void Add(DataItem elem)
+        {
+            Grid.Add(elem);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
         public IEnumerator<DataItem> GetEnumerator()
@@ -35,7 +44,7 @@ namespace ClassLibrary
                 float y = (float)rnd.NextDouble() * ymax;
                 double value = rnd.NextDouble() * (maxValue - minValue) + minValue;
 
-                Grid.Add(new DataItem(new Vector2(x, y), value));
+                Add(new DataItem(new Vector2(x, y), value));
             }
         }
 

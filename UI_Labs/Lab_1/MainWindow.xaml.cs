@@ -5,8 +5,10 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Controls;
+using System.Windows.Input;
 
-namespace Lab_1
+namespace Lab
 {
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
@@ -14,6 +16,10 @@ namespace Lab_1
     public partial class MainWindow : Window
     {
         private V3MainCollection Collection { get; set; } = new V3MainCollection();
+
+        private DataItemModel DataItemModel { get; set; }
+
+        public static RoutedCommand AddCommand = new RoutedCommand("Add", typeof(Lab.MainWindow));
 
         public MainWindow()
         {
@@ -56,40 +62,6 @@ namespace Lab_1
 
             Collection = new V3MainCollection();
             InitDataContext();
-        }
-
-        private void MenuItem_Open_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (Check_Changes())
-                {
-                    Serialize();
-                }
-
-                OpenFileDialog dlg = new OpenFileDialog
-                {
-                    Filter = "Serialization data|*.dat|All|*.*",
-                    FilterIndex = 2
-                };
-
-                if (dlg.ShowDialog() == true)
-                {
-                    Collection = new V3MainCollection();
-                    Collection.Load(dlg.FileName);
-                    InitDataContext();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"{this.GetType()}.MenuItem_Open_Click() raised exception:\n{ex.Message}");
-            }
-
-        }
-
-        private void MenuItem_Save_Click(object sender, RoutedEventArgs e)
-        {
-            Serialize();
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -170,14 +142,6 @@ namespace Lab_1
             }
         }
 
-        private void MenuItem_Remove_Click(object sender, RoutedEventArgs e)
-        {
-            if (listBox_Main.SelectedIndex >= 0)
-            {
-                Collection.RemoveAt(listBox_Main.SelectedIndex);
-            }
-        }
-
         private void Filter_DataCollection(object sender, FilterEventArgs args)
         {
             args.Accepted = args.Item is V3DataCollection;
@@ -186,6 +150,89 @@ namespace Lab_1
         private void Filter_DataOnGrid(object sender, FilterEventArgs args)
         {
             args.Accepted = args.Item is V3DataOnGrid;
+        }
+
+        private void Init_DataItemModel()
+        {
+            if (listBox_DataCollection.SelectedItem as V3DataCollection != null)
+            {
+                DataItemModel = new DataItemModel(listBox_DataCollection.SelectedItem as V3DataCollection);
+                DataItem_X.DataContext = DataItem_Y.DataContext = DataItem_Value.DataContext = DataItemModel;
+            }
+        }
+
+        private void listBox_DataCollection_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            Init_DataItemModel();
+        }
+
+        private void OpenCommandHandler_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            try
+            {
+                if (Check_Changes())
+                {
+                    Serialize();
+                }
+
+                OpenFileDialog dlg = new OpenFileDialog
+                {
+                    Filter = "Serialization data|*.dat|All|*.*",
+                    FilterIndex = 2
+                };
+
+                if (dlg.ShowDialog() == true)
+                {
+                    Collection = new V3MainCollection();
+                    Collection.Load(dlg.FileName);
+                    InitDataContext();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{this.GetType()}.MenuItem_Open_Click() raised exception:\n{ex.Message}");
+            }
+        }
+
+        private void SaveCommandHandler_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = Collection.ChangedAfterSaving;
+        }
+
+        private void SaveCommandHandler_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            Serialize();
+        }
+
+        private void DeleteCommandHandler_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+        {
+
+            e.CanExecute = listBox_Main != null && listBox_Main.SelectedIndex >= 0;
+        }
+
+        private void DeleteCommandHandler_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            Collection.RemoveAt(listBox_Main.SelectedIndex);
+        }
+
+        private void AddCommandHandler_CanExecute(object sender, System.Windows.Input.CanExecuteRoutedEventArgs e)
+        {
+
+            if (DataItemModel != null)
+            {
+                if (Validation.GetHasError(DataItem_X) == false && Validation.GetHasError(DataItem_Y) == false && Validation.GetHasError(DataItem_Value) == false)
+                {
+                    e.CanExecute = true;
+                    return;
+                }
+            }
+            e.CanExecute = false;
+        }
+
+        private void AddCommandHandler_Executed(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            DataItemModel.Add();
+            Init_DataItemModel();
         }
     }
 }
