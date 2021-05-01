@@ -26,7 +26,6 @@ namespace Lab
                 x = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("X"));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Y"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
             }
         }
 
@@ -38,7 +37,6 @@ namespace Lab
                 y = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("X"));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Y"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
             }
         }
 
@@ -48,8 +46,6 @@ namespace Lab
             set
             {
                 this.value = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("X"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Y"));
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
             }
         }
@@ -75,12 +71,16 @@ namespace Lab
                         {
                             msg = "Value should be > 0";
                         }
-                        goto case "X";
+                        break;
                     case "X":
                     case "Y":
-                        if (Collection.Grid.Contains(new DataItem(new Vector2(X, Y), Value)))
+                        foreach (var elem in Collection.Grid)
                         {
-                            msg = "Collection already contains this element";
+                            if (elem.Coord.X == X && elem.Coord.Y == Y)
+                            {
+                                msg = "Collection already contains element in this point";
+                                break;
+                            }
                         }
                         break;
                 }
